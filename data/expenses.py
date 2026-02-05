@@ -1,4 +1,4 @@
-# define/assume expenses (in today's money without inflation, in euro)
+# define/assume expenses (in today's money without inflation, i.e. value now, in euro)
 import os
 
 class ExpensesAfterRetirement:

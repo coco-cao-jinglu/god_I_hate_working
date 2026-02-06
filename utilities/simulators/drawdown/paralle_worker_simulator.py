@@ -28,7 +28,7 @@ class ParallelWorkerSimulator:
         retirement_capital=c.retirement_capital,
         life_expectancy=c.life_expectancy,
         return_method='constant',
-        threshold_failure=10000,
+        threshold_failure=c.threshold_failure,
         **kwargs
     ):
         args = [

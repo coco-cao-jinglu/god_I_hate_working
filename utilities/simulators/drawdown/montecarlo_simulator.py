@@ -19,7 +19,7 @@ class MonteCarloSimulator:
         }
         
 
-    def simulate(self, n_simulation = 5000, retirement_age = c.retirement_age, retirement_capital = c.retirement_capital, life_expectancy = c.life_expectancy, return_method = 'constant', threshold_failure = 10000, **kwargs):
+    def simulate(self, n_simulation = 5000, retirement_age = c.retirement_age, retirement_capital = c.retirement_capital, life_expectancy = c.life_expectancy, return_method = 'constant', threshold_failure = c.threshold_failure, **kwargs):
     # threshold failure: the number below which it would be counted as a failure if the account dips below it at any point during retirement 
 
         l_final_account = []

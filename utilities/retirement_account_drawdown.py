@@ -12,12 +12,14 @@ class RetirementAccountCalculator:
     def __init__(self):
         pass 
 
+
     def monthly_account(self, retirement_age = c.retirement_age, retirement_capital = c.retirement_capital, life_expectancy = c.life_expectancy, inflation_method = 'constant', return_method = 'constant', **kwargs):
         '''
         kwargs can take the following inputs:
         - c_inflation_constant: applicable when return_method = 'constant'. the assumed constant inflation for annual inflation simulator. optional even if 'inflation_method' == 'constant', as constant simulator has a default value
         - c_return_constant : applicable when return_method = 'constant'. the assumed constant inflation for monthly investment return simulator. optional even if 'return_method' == 'constant', as constant simulator has a default value
         - proportion_stock: applicable when return_method = 'normal' or 'bootstrap'. the assumed proportion of stock in the portfolio for monthly investment return simulator. optional, as normal and bootstrap simulators have a default value of 1 (100% stock portfolio)
+        - l_simulated_monthly_returns: applicable when return_method = 'normal' or 'bootstrap'. the list of simulated monthly returns to use for monthly investment return simulator. optional. for the purpose of portfolio-compositor related calculations. the simulated return generation will be handled inside whole_path calculator. so the drawdown calculator expect to be fed the already simulated returns
         - inflation_country: applicable when inflation_method = 'normal' or 'bootstrap'. the country for historical annual inflation data. optional, as normal and bootstrap simulators have a default value of 'mixed', which averages over all available countries (US, UK, singapore, spain)
         '''
         account = retirement_capital
@@ -56,33 +58,37 @@ class RetirementAccountCalculator:
             
         # generate return
         assert return_method in ['constant', 'normal', 'bootstrap']
-        if return_method == 'constant':
-            if 'c_return_constant' in kwargs.keys():
-                i_constant = kwargs['c_return_constant']
-                for _ in range((life_expectancy - retirement_age)*12):
-                    l_monthly_return.append(s_return.constant(i_constant))
-            else:
-                for _ in range((life_expectancy - retirement_age)*12):
-                    l_monthly_return.append(s_return.constant())
 
-        if return_method == 'normal':
-            if 'proportion_stock' in kwargs.keys():
-                proportion_stock = kwargs['proportion_stock']
-                kwargs.pop('proportion_stock')
-                for _ in range((life_expectancy - retirement_age)*12):
-                    l_monthly_return.append(s_return.normal(proportion_stock=proportion_stock, kwargs = kwargs))
-            else:
-                for _ in range((life_expectancy - retirement_age)*12):
-                    l_monthly_return.append(s_return.normal(kwargs = kwargs))
+        if 'l_simulated_monthly_returns' in kwargs.keys():
+            l_monthly_return = kwargs['l_simulated_monthly_returns']
+        else:
+            if return_method == 'constant':
+                if 'c_return_constant' in kwargs.keys():
+                    i_constant = kwargs['c_return_constant']
+                    for _ in range((life_expectancy - retirement_age)*12):
+                        l_monthly_return.append(s_return.constant(i_constant))
+                else:
+                    for _ in range((life_expectancy - retirement_age)*12):
+                        l_monthly_return.append(s_return.constant())
 
-        if return_method == 'bootstrap':
-            if 'proportion_stock' in kwargs.keys():
-                proportion_stock = kwargs['proportion_stock']
-                for _ in range((life_expectancy - retirement_age)*12):
-                    l_monthly_return.append(s_return.bootstrap(proportion_stock=proportion_stock, **kwargs))
-            else:
-                for _ in range((life_expectancy - retirement_age)*12):
-                    l_monthly_return.append(s_return.bootstrap(**kwargs))
+            if return_method == 'normal':
+                if 'proportion_stock' in kwargs.keys():
+                    proportion_stock = kwargs['proportion_stock']
+                    kwargs.pop('proportion_stock')
+                    for _ in range((life_expectancy - retirement_age)*12):
+                        l_monthly_return.append(s_return.normal(proportion_stock=proportion_stock, kwargs = kwargs))
+                else:
+                    for _ in range((life_expectancy - retirement_age)*12):
+                        l_monthly_return.append(s_return.normal(kwargs = kwargs))
+
+            if return_method == 'bootstrap':
+                if 'proportion_stock' in kwargs.keys():
+                    proportion_stock = kwargs['proportion_stock']
+                    for _ in range((life_expectancy - retirement_age)*12):
+                        l_monthly_return.append(s_return.bootstrap(proportion_stock=proportion_stock, **kwargs))
+                else:
+                    for _ in range((life_expectancy - retirement_age)*12):
+                        l_monthly_return.append(s_return.bootstrap(**kwargs))
 
         if 'f_monthly_verbose' in kwargs.keys() and kwargs['f_monthly_verbose'] == True:
             print('l_annual_inflation:', l_annual_inflation)

@@ -17,7 +17,7 @@ class RetirementAgeCalculator:
         return_method='constant',
         threshold_failure=c.threshold_failure,
         **kwargs):
-        assert strategy[0] in ['constant', 'glidepath', 'annual goal-fitter']
+        assert strategy[0] in ['constant', 'glidepath', 'moderator', 'polariser']
         if strategy[0] == 'constant':
             assert type(strategy[1]) == int or type(strategy[1]) == float
             stock_proportion = strategy[1]
@@ -26,6 +26,9 @@ class RetirementAgeCalculator:
             assert strategy[1] in ['linear', 'concave', 'concave_up', 'concave_down']
             glidepath_type = strategy[1]
             return pws.simulate(monthly_net_income=monthly_net_income, retirement_age=retirement_age,n_simulation=n_simulation, return_method=return_method, threshold_failure=threshold_failure, f_portfolio_composition = True, portfolio_method = 'glidepath', glidepath_type = glidepath_type, **kwargs)
+        elif strategy[0] in ['moderator', 'polariser']:
+            assert type(strategy[1]) == float and strategy[1] >= 0.0 and strategy[1] <= 1.0
+            return pws.simulate(monthly_net_income=monthly_net_income, retirement_age=retirement_age,n_simulation=n_simulation, threshold_failure=threshold_failure, f_portfolio_composition = True, portfolio_method = strategy[0], start_proportion = strategy[1])
         
 
     def calculate(self, monthly_net_income, l_available_strategies, max_tolerated_failure_rate,
@@ -59,6 +62,14 @@ class RetirementAgeCalculator:
             print("You cannot retire. Earn more or tolerate higher failure rates.")
             print("Even if you work until death, your lowest failure rate is still " + str(min(dic_extreme_case_results.values())))
             return False
+        
+        def make_presentable_method_string(strategy):
+            if strategy[0] == 'constant':
+                return (strategy[0], 'stock_proportion = ' + str(strategy[1]))
+            elif strategy[0] in ['moderator', 'polariser']:
+                return (strategy[0], 'portfolio_starting_stock_proportion = ' + str(strategy[1]))
+            else:
+                return strategy
 
         if test_extreme_case() is True:
             age = current_age + 1
@@ -73,6 +84,7 @@ class RetirementAgeCalculator:
                 threshold_failure=threshold_failure,
                 **kwargs)
                     dic_all_strategy_res[strategy] = res
+
                 min_failure_fate = min([dic_all_strategy_res[method]['failure_rate'] for method in l_available_strategies])
                 if min_failure_fate > max_tolerated_failure_rate:
                     print("Age " + str(age) + " fails. At this age, your lowest failure rate is " + str(min_failure_fate))

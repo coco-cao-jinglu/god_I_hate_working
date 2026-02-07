@@ -16,7 +16,7 @@ class IncrementCalculator_DynamicPortfolio:
 
     def monthly_account(self, monthly_income, dynamic_portfolio_strategy, retirement_age = c.retirement_age, inflation_method = 'constant', **kwargs):
         '''
-        dynamic_portfolio_strategy expects an object with (1) a "generate" function which, given past account value and portfolio composition information thus far, would give stock proportion for coming year (2) a "start" function which gives a beginning stock proportion value
+        dynamic_portfolio_strategy expects an object with (1) a "generate" function which, given past account values, portfolio composition information and past monthly returns thus far, would give stock proportion for coming year (2) a "start" function which gives a beginning stock proportion value
 
         assumes return simulation is normally distributed from historical values 
 
@@ -80,7 +80,7 @@ class IncrementCalculator_DynamicPortfolio:
                 accumulated_inflation = accumulated_inflation * (1+l_annual_inflation[i_inflation_year])
 
                 # portfolio composition is annually adjusted
-                next_stock_proportion = dynamic_portfolio_strategy.generate(l_account_history, l_annual_stock_proportion, **kwargs)
+                next_stock_proportion = dynamic_portfolio_strategy.generate(l_account_history, l_annual_stock_proportion, l_monthly_return, **kwargs)
                 l_annual_stock_proportion.append(next_stock_proportion)
 
                 if 'f_dynamic_composition_annual_verbose' in kwargs.keys() and kwargs['f_dynamic_composition_annual_verbose'] is True:

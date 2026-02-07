@@ -58,13 +58,19 @@ class WholePath:
 
                 l_account_after_retirement = c_drawdown.monthly_account(retirement_age = retirement_age, retirement_capital = capital_at_retirement, life_expectancy = life_expectancy, inflation_method = inflation_method, return_method = return_method, l_simulated_monthly_returns = l_glidepath_monthly_returns, **kwargs)
                 l_wholepath_account = l_account_before_retirement + l_account_after_retirement[1:]
-            elif kwargs['portfolio_method'] in ['moderator', 'polariser']:
+            elif kwargs['portfolio_method'] in ['moderator', 'polariser', 'moderator_historical', 'polariser_historical']:
                 if kwargs['portfolio_method'] == 'moderator':
                     from utilities.portfolio_compositors.moderator import Moderator 
                     strategy_portfolio = Moderator(**kwargs)
                 elif kwargs['portfolio_method'] == 'polariser':
                     from utilities.portfolio_compositors.polariser import Polariser
                     strategy_portfolio = Polariser(**kwargs)
+                elif kwargs['portfolio_method'] == 'moderator_historical':
+                    from utilities.portfolio_compositors.moderator_historical import ModeratorHistorical
+                    strategy_portfolio = ModeratorHistorical(**kwargs)
+                elif kwargs['portfolio_method'] == 'polariser_historical':
+                    from utilities.portfolio_compositors.polariser_historical import PolariserHistorical
+                    strategy_portfolio = PolariserHistorical(**kwargs)
 
                 l_account_before_retirement = c_incrementDynamic.monthly_account(monthly_net_income, strategy_portfolio, retirement_age = retirement_age, inflation_method = inflation_method, **kwargs)
 

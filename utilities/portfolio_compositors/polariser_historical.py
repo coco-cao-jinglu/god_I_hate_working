@@ -1,8 +1,8 @@
-from utilities.portfolio_compositors.moderator import Moderator
+from utilities.portfolio_compositors.moderator_historical import ModeratorHistorical
 
-class Polariser:
+class PolariserHistorical:
     def __init__(self, **kwargs):
-        self.moderator = Moderator(**kwargs)
+        self.moderator = ModeratorHistorical(**kwargs)
 
     def start(self, **kwargs):
         return self.moderator.start(**kwargs)
